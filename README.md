@@ -70,6 +70,12 @@ TABLESPACE pg_default;
 ALTER TABLE IF EXISTS public.ads_staging
     OWNER to postgres;
 
+**Copy data to staging table 2**
+INSERT INTO ads_staging2(
+SELECT *
+FROM ads
+)
+
 **Insert values into the row_number column**
 INSERT INTO ads_staging2
 SELECT *,
@@ -254,6 +260,11 @@ ALTER TABLE ads_staging2
 ALTER COLUMN click_time
 TYPE timestamp
 USING (click_time::timestamp)
+
+ALTER TABLE ads_staging2
+ALTER COLUMN conversion_rate
+TYPE decimal
+USING (conversion_rate::decimal)
 
 ALTER TABLE ads_staging2
 ALTER COLUMN click_through_rate

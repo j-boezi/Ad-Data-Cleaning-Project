@@ -1,7 +1,7 @@
 # Ad-Data-Cleaning
 
 **Create Table**
-```
+```sql
 DROP TABLE IF EXISTS ads
 CREATE TABLE ads (
 	age text,
@@ -21,14 +21,14 @@ CREATE TABLE ads (
 **Import CSV file**
 
 **Create staging table**
-```
+```sql
 CREATE TABLE ads_staging(
 LIKE ads
 );
 
 ```
 **Copy data to staging table**
-```
+```sql
 INSERT INTO ads_staging(
 SELECT *
 FROM ads
@@ -38,7 +38,7 @@ FROM ads
 # REMOVING THE DUPLICATES
 
 **Set up row number function to find duplicate rows**
-```
+```sql
 SELECT *,
 ROW_NUMBER() OVER(
 	PARTITION BY age, gender, income, click_time
@@ -47,7 +47,7 @@ FROM ads_staging;
 ```
 
 **Use a CTE function to isolate duplicate rows**
-```
+```sql
 WITH duplicate_cte AS(
 SELECT *,
 ROW_NUMBER() OVER(
@@ -61,7 +61,7 @@ WHERE row_number > 1;
 ```
 
 **Copy create table statement into query tool, adding a new title and "row_number" column**
-```
+```sql
 CREATE TABLE IF NOT EXISTS public.ads_staging2
 (
     age text COLLATE pg_catalog."default",
@@ -83,7 +83,7 @@ ALTER TABLE IF EXISTS public.ads_staging
 ```
 
 **Copy data to staging table 2**
-```
+```sql
 INSERT INTO ads_staging2(
 SELECT *
 FROM ads
@@ -91,7 +91,7 @@ FROM ads
 ```
 
 **Insert values into the row_number column**
-```
+```sql
 INSERT INTO ads_staging2
 SELECT *,
 ROW_NUMBER() OVER(
@@ -101,7 +101,7 @@ FROM ads_staging;
 ```
 
 **Delete duplicate rows**
-```
+```sql
 DELETE
 FROM ads_staging2
 WHERE row_number > 1;
@@ -112,19 +112,19 @@ WHERE row_number > 1;
 # STANDARDIZING THE DATA
 
 **AGE**
-```
+```sql
 SELECT DISTINCT age
 FROM ads_staging2
 ORDER BY 1;
 ```
 
-```
+```sql
 UPDATE ads_staging2
 SET age = NULL
 WHERE age IN ('-_', '-__', '0', '1','2','3','4','5','6','7','8','9','10','11','12','13','14','15','16','17');
 ```
 
-```
+```sql
 SELECT age,
 	CASE
 	WHEN LOWER(age) LIKE 'fourty-nine' THEN '49'
@@ -135,7 +135,7 @@ SELECT age,
 FROM ads_staging2;
 ```
 
-```
+```sql
 UPDATE ads_staging2
 SET age = CASE
 	WHEN LOWER(age) LIKE 'fourty-nine' THEN '49'
@@ -146,13 +146,13 @@ SET age = CASE
 ```
 
 **GENDER**
-```
+```sql
 SELECT DISTINCT gender
 FROM ads_staging2
 ORDER BY 1;
 ```
 
-```
+```sql
 SELECT gender,
 	CASE
 	WHEN LOWER(gender) LIKE 'f%' THEN 'Female'
@@ -163,7 +163,7 @@ SELECT gender,
 FROM ads_staging2;
 ```
 
-```
+```sql
 UPDATE ads_staging2
 SET gender = CASE
 	WHEN LOWER(gender) LIKE 'f%' THEN 'Female'
@@ -174,46 +174,47 @@ SET gender = CASE
 ```
 
  **Income**
-```
+```sql
 SELECT DISTINCT income
 FROM ads_staging2
 ORDER BY 1;
 ```
 
-```
+```sql
 UPDATE ads_staging2
 SET income = TRIM(LEADING '-' FROM income)
 WHERE income LIKE '-%';
 ```
 
-```
+```sql
 UPDATE ads_staging2
 SET income = TRIM(LEADING '$' FROM income)
 WHERE income LIKE '$%';
 ```
 
-```
+```sql
 SELECT income FROM ads_staging2
 WHERE income LIKE '%,%';
 ```
 
-```
+```sql
 SELECT REPLACE(income, ',', '')
 FROM ads_staging2;
 ```
 
-```
+```sql
 UPDATE ads_staging2
 SET income = REPLACE(income, ',', '')
 WHERE income LIKE '%,%';
 ```
 
 **Ad Placement**
-```
+```sql
 SELECT DISTINCT ad_placement
 FROM ads_staging2;
 ```
-```
+
+```sql
 SELECT ad_placement,
 	CASE
 	WHEN LOWER(ad_placement) LIKE 'social%' THEN 'Social Media'
@@ -223,7 +224,7 @@ SELECT ad_placement,
 FROM ads_staging2;
 ```
 
-```
+```sql
 UPDATE ads_staging2
 SET ad_placement = CASE
 	WHEN LOWER(ad_placement) LIKE 'social%' THEN 'Social Media'
@@ -234,13 +235,13 @@ SET ad_placement = CASE
 
 **Clicks**
 
-```
+```sql
 SELECT DISTINCT clicks
 FROM ads_staging2
 ORDER BY 1;
 ```
 
-```
+```sql
 SELECT clicks,
 	CASE
 		WHEN LOWER(clicks) LIKE 'six' THEN '6'
@@ -251,7 +252,7 @@ SELECT clicks,
 	FROM ads_staging2;
 ```
 
-```
+```sql
 UPDATE ads_staging2
 SET clicks = CASE
 	WHEN LOWER(clicks) LIKE 'six' THEN '6'
@@ -262,20 +263,20 @@ SET clicks = CASE
 ```
 
 **Click Time**
-```
+```sql
 SELECT DISTINCT click_time
 FROM ads_staging2
 ORDER BY 1;
 ```
 
-```
+```sql
 SELECT TO_CHAR(
 	TO_TIMESTAMP('04-17-2024 20:45:57', 'MM-DD-YYYY HH24:MI:SS'),
 	'YYYY-MM-DD HH24:MI:SS'
 );
 ```
 
-```
+```sql
 UPDATE ads_staging2
 SET click_time = TO_CHAR(
 	TO_TIMESTAMP('04-17-2024 20:45:57', 'MM-DD-YYYY HH24:MI:SS'),
@@ -287,48 +288,48 @@ WHERE click_time LIKE '04-17%';
 # REMOVING IRRELEVANT COLUMNS & ALTERING DATA TYPES FROM TEXT
 
 **Delete row_number column**
-```
+```sql
 ALTER TABLE ads_staging2
 DROP COLUMN row_number;
 ```
 
 **Change data from text to a more suitable type**
-```
+```sql
 ALTER TABLE ads_staging2
 ALTER COLUMN age
 TYPE integer
 USING (age::integer);
 ```
 
-```
+```sql
 ALTER TABLE ads_staging2
 ALTER COLUMN income
 TYPE decimal
 USING (income::decimal);
 ```
 
-```
+```sql
 ALTER TABLE ads_staging2
 ALTER COLUMN clicks
 TYPE integer
 USING (clicks::integer);
 ```
 
-```
+```sql
 ALTER TABLE ads_staging2
 ALTER COLUMN click_time
 TYPE timestamp
 USING (click_time::timestamp);
 ```
 
-```
+```sql
 ALTER TABLE ads_staging2
 ALTER COLUMN conversion_rate
 TYPE decimal
 USING (conversion_rate::decimal);
 ```
 
-```
+```sql
 ALTER TABLE ads_staging2
 ALTER COLUMN click_through_rate
 TYPE decimal
@@ -336,7 +337,7 @@ USING (click_through_rate::decimal);
 ```
 
 **Change title of table to show data has been cleaned**
-```
+```sql
 ALTER TABLE ads_staging2
 RENAME TO ads_final;
 ```

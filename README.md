@@ -1,7 +1,20 @@
-# Ad-Data-Cleaning
+# Ad Data Cleaning Project
 
-# Prepare Database for Cleaning
-**•Create Table**
+# Purpose
+This project focuses on cleaning and preparing an advertising dataset for further exploration, analysis, and visualization. To simulate real-world messy data scenarios, I intentionally altered a public ads dataset—removing entries, changing formats, and introducing inconsistent or incorrect values. The goal was to identify errors, standardize formats, and produce a final, usable database ready for analysis. This project served as a hands-on practice in data cleaning with SQL.
+
+# Tools & Skills Used
+•PostgreSQL for database management and SQL queries
+•Data Cleaning Techniques:
+•Removing duplicates
+•Standardizing formats (text, numeric, timestamp)
+•Handling null values and invalid entries
+•Converting data types
+•Data Quality Checks to ensure consistency and accuracy
+
+# Prepare the Database
+
+**•Created an ads table and a staging table ads_staging to hold raw imported data.**
 ```sql
 DROP TABLE IF EXISTS ads
 CREATE TABLE ads (
@@ -21,14 +34,13 @@ CREATE TABLE ads (
 
 **•Import CSV file**
 
-**•Create a staging table**
+**•Copied the dataset into the staging table for cleaning without altering the original.**
 ```sql
 CREATE TABLE ads_staging(
 LIKE ads
 );
 
 ```
-**•Copy data to the staging table**
 ```sql
 INSERT INTO ads_staging(
 SELECT *
@@ -36,9 +48,12 @@ FROM ads
 );
 ```
 
-# Remove Duplicate Rows from Data
+# Remove Duplicate Rows
 
-**•Set up row number function to find duplicate rows**
+
+
+
+**•Used ROW_NUMBER() with a PARTITION BY clause to identify duplicate rows.**
 ```sql
 SELECT *,
 ROW_NUMBER() OVER(
@@ -87,8 +102,7 @@ ALTER TABLE IF EXISTS public.ads_staging
     OWNER to postgres;
 ```
 
-**•Insert data into ads_staging2**
-**•Insert values into the row_number column**
+**•Stored data in ads_staging2 with a row_number column and deleted all duplicates where row_number > 1.**
 ```sql
 INSERT INTO ads_staging2
 SELECT *,
@@ -97,8 +111,6 @@ ROW_NUMBER() OVER(
 	) AS row_number
 FROM ads_staging;
 ```
-
-**•Delete duplicate rows**
 ```sql
 DELETE
 FROM ads_staging2
@@ -107,9 +119,18 @@ WHERE row_number > 1;
 
 
 
-# Standardize the Data
+#  Standardize the Data
 
-**Age Column**
+
+
+
+
+
+
+
+
+
+**Age: Removed invalid values, converted written numbers to integers.**
 **•Check validity of listed ages**
 ```sql
 SELECT DISTINCT age
@@ -145,7 +166,7 @@ SET age = CASE
 	END;
 ```
 
-**Gender Column**
+**Gender: Standardized to "Male," "Female," or "Other" with proper capitalization.**
 **•Check validity of listed genders**
 ```sql
 SELECT DISTINCT gender
@@ -174,7 +195,7 @@ SET gender = CASE
 	END;
 ```
 
- **Income Category**
+ **Income: Removed negative signs, currency symbols, and commas; converted to decimal type.y**
 **•Check validity of listed incomes**
 ```sql
 SELECT DISTINCT income
@@ -211,7 +232,7 @@ SET income = REPLACE(income, ',', '')
 WHERE income LIKE '%,%';
 ```
 
-**Ad Placement Category**
+**Ad Placement: Standardized to proper case (e.g., "Social Media", "Website").**
 **•Check validity of ad placements**
 ```sql
 SELECT DISTINCT ad_placement
@@ -237,7 +258,7 @@ SET ad_placement = CASE
 	END;
 ```
 
-**Clicks Column**
+**Clicks: Converted written numbers to integers.**
 **•Check validity of clicks**
 ```sql
 SELECT DISTINCT clicks
@@ -266,7 +287,7 @@ SET clicks = CASE
 		END;
 ```
 
-**Click Time Column**
+**Click Time: Fixed inconsistent timestamp formats.**
 **•Check validity of click time data
 ```sql
 SELECT DISTINCT click_time
@@ -290,22 +311,22 @@ SET click_time = TO_CHAR(
 WHERE click_time LIKE '04-17%';
 ```
 
-# Remove irrelevant data columns, modify the data type of columns, and finalize the cleaned data table
+# Finalize the Cleaned Dataset
 
-**•Delete row_number column**
+
+**•Dropped the row_number column.**
 ```sql
 ALTER TABLE ads_staging2
 DROP COLUMN row_number;
 ```
 
-**•Change age column from text to integer type**
+**•Converted columns to appropriate data types (integer, decimal, timestamp).**
 ```sql
 ALTER TABLE ads_staging2
 ALTER COLUMN age
 TYPE integer
 USING (age::integer);
 ```
-**•Change income column from text to decimal type**
 ```sql
 ALTER TABLE ads_staging2
 ALTER COLUMN income
@@ -341,8 +362,19 @@ TYPE decimal
 USING (click_through_rate::decimal);
 ```
 
-**•Change title of table to show data has been cleaned**
+**•Renamed ads_staging2 to ads_final to indicate the cleaned dataset is ready for use.**
 ```sql
 ALTER TABLE ads_staging2
 RENAME TO ads_final;
 ```
+
+
+
+# Conclusion
+Original dataset: Contained duplicates, inconsistent formatting, invalid values, and mixed data types.
+Cleaned dataset: Fully standardized, validated, and stored in ads_final, ready for analysis and visualization.
+
+**This project reinforced the importance of:**
+•Creating staging tables to preserve raw data.
+•Writing targeted SQL queries to detect and correct inconsistencies.
+•Using data type conversions to prepare for accurate analysis.

@@ -119,7 +119,7 @@ WHERE row_number > 1;
 #  Standardize the Data
 
 
-**Age: Removed invalid values, converted written numbers to integers.**  
+**•Age: Removed invalid values, converted written numbers to integers.**  
 ```sql
 SELECT DISTINCT age
 FROM ads_staging2
@@ -150,7 +150,7 @@ SET age = CASE
 	END;
 ```
 
-**Gender: Standardized to "Male," "Female," or "Other" with proper capitalization.**
+**•Gender: Standardized to "Male," "Female," or "Other" with proper capitalization.**
 ```sql
 SELECT DISTINCT gender
 FROM ads_staging2
@@ -176,7 +176,7 @@ SET gender = CASE
 	END;
 ```
 
-**Income: Removed negative signs, currency symbols, and commas; converted to decimal type.y**
+**•Income: Removed negative signs, currency symbols, and commas; converted to decimal type.y**
 ```sql
 SELECT DISTINCT income
 FROM ads_staging2
@@ -206,7 +206,7 @@ SET income = REPLACE(income, ',', '')
 WHERE income LIKE '%,%';
 ```
 
-**Ad Placement: Standardized to proper case (e.g., "Social Media", "Website").**
+**•Ad Placement: Standardized to proper case (e.g., "Social Media", "Website").**
 ```sql
 SELECT DISTINCT ad_placement
 FROM ads_staging2;
@@ -229,7 +229,7 @@ SET ad_placement = CASE
 	END;
 ```
 
-**Clicks: Converted written numbers to integers.**
+**•Clicks: Converted written numbers to integers.**
 ```sql
 SELECT DISTINCT clicks
 FROM ads_staging2
@@ -255,7 +255,7 @@ SET clicks = CASE
 		END;
 ```
 
-**Click Time: Fixed inconsistent timestamp formats.**
+**•Click Time: Fixed inconsistent timestamp formats.**
 ```sql
 SELECT DISTINCT click_time
 FROM ads_staging2
@@ -336,10 +336,10 @@ RENAME TO ads_final;
 
 
 # Conclusion
-Original dataset: Contained duplicates, inconsistent formatting, invalid values, and mixed data types.
+Original dataset: Contained duplicates, inconsistent formatting, invalid values, and mixed data types.  
 Cleaned dataset: Fully standardized, validated, and stored in ads_final, ready for analysis and visualization.
 
-**This project reinforced the importance of:**
+This project reinforced the importance of:  
 •Creating staging tables to preserve raw data.
 •Writing targeted SQL queries to detect and correct inconsistencies.
 •Using data type conversions to prepare for accurate analysis.

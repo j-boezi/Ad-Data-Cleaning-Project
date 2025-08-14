@@ -340,6 +340,6 @@ Original dataset: Contained duplicates, inconsistent formatting, invalid values,
 Cleaned dataset: Fully standardized, validated, and stored in ads_final, ready for analysis and visualization.
 
 This project reinforced the importance of:  
-•Creating staging tables to preserve raw data.
-•Writing targeted SQL queries to detect and correct inconsistencies.
+•Creating staging tables to preserve raw data.  
+•Writing targeted SQL queries to detect and correct inconsistencies.  
 •Using data type conversions to prepare for accurate analysis.

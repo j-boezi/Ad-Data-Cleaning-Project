@@ -6,7 +6,7 @@ This project focuses on cleaning and preparing an advertising dataset for furthe
 # Tools & Skills Used
 •PostgreSQL for database management and SQL queries
 •Data Cleaning Techniques:
-•Removing duplicates
+•Removing duplicates 
 •Standardizing formats (text, numeric, timestamp)
 •Handling null values and invalid entries
 •Converting data types

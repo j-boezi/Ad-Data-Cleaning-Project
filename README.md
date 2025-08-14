@@ -1,16 +1,15 @@
 # Ad Data Cleaning Project
 
 # Purpose
-This project focuses on cleaning and preparing an advertising dataset for further exploration, analysis, and visualization. To simulate real-world messy data scenarios, I intentionally altered a public ads dataset—removing entries, changing formats, and introducing inconsistent or incorrect values. The goal was to identify errors, standardize formats, and produce a final, usable database ready for analysis. This project served as a hands-on practice in data cleaning with SQL.
+This project focuses on cleaning and preparing an advertising dataset for further exploration, analysis, and visualization. To simulate real-world messy data scenarios, I intentionally altered a public ads dataset by removing entries, changing formats, and introducing inconsistent or incorrect values. The goal was to identify errors, standardize formats, and produce a final, usable database ready for analysis. This project served as a hands-on practice in data cleaning with SQL.
 
 # Tools & Skills Used
-•PostgreSQL for database management and SQL queries
-•Data Cleaning Techniques:
-•Removing duplicates 
-•Standardizing formats (text, numeric, timestamp)
-•Handling null values and invalid entries
-•Converting data types
-•Data Quality Checks to ensure consistency and accuracy
+•PostgreSQL for database management and SQL queries  
+•Removing duplicates  
+•Standardizing formats (text, numeric, timestamp)  
+•Handling null values and invalid entries  
+•Converting data types  
+•Data Quality Checks to ensure consistency and accuracy  
 
 # Prepare the Database
 
@@ -32,7 +31,7 @@ CREATE TABLE ads (
 );
 ```
 
-**•Import CSV file**
+**•Imported a CSV file into PostgreSQL.**
 
 **•Copied the dataset into the staging table for cleaning without altering the original.**
 ```sql
@@ -76,11 +75,9 @@ FROM duplicate_cte
 WHERE row_number > 1;
 ```
 
-**•A new table with a row_number column is needed in order to remove the duplicate rows**
-**•Create a duplicate table of ads_staging**
-**•In left-hand margin, right click table layoffs_staging in margin •Select "Scripts" > "CREATE Script"**
-**•Modify table name to "layoffs_staging2"**
-**•Add an integer-type "row_number" column**
+**•Since a new table with a row_number column is needed in order to remove the duplicate rows, I created a duplicate table of ads_staging.**  
+**•In the left-hand margin, I right clicked table layoffs_staging > Scripts > CREATE Script.**  
+**•Then, I modified the table name to "layoffs_staging2, and added an integer-type "row_number" column."**
 ```sql
 CREATE TABLE IF NOT EXISTS public.ads_staging2
 (
@@ -122,30 +119,17 @@ WHERE row_number > 1;
 #  Standardize the Data
 
 
-
-
-
-
-
-
-
-
-**Age: Removed invalid values, converted written numbers to integers.**
-**•Check validity of listed ages**
+**Age: Removed invalid values, converted written numbers to integers.**  
 ```sql
 SELECT DISTINCT age
 FROM ads_staging2
 ORDER BY 1;
 ```
-**•Negative values and ages below 18 are listed**
-**•Make these values NULL**
 ```sql
 UPDATE ads_staging2
 SET age = NULL
 WHERE age IN ('-_', '-__', '0', '1','2','3','4','5','6','7','8','9','10','11','12','13','14','15','16','17');
 ```
-**•Some values are in string form rather than integer form**
-**•Change the strings to integers**
 ```sql
 SELECT age,
 	CASE
@@ -167,14 +151,11 @@ SET age = CASE
 ```
 
 **Gender: Standardized to "Male," "Female," or "Other" with proper capitalization.**
-**•Check validity of listed genders**
 ```sql
 SELECT DISTINCT gender
 FROM ads_staging2
 ORDER BY 1;
 ```
-**•Some genders appear as 'f' or 'm' rather than 'Female' or Male'**
-**•Modify this so each gender is spelled out and begun with a capital letter**
 ```sql
 SELECT gender,
 	CASE
@@ -195,29 +176,22 @@ SET gender = CASE
 	END;
 ```
 
- **Income: Removed negative signs, currency symbols, and commas; converted to decimal type.y**
-**•Check validity of listed incomes**
+**Income: Removed negative signs, currency symbols, and commas; converted to decimal type.y**
 ```sql
 SELECT DISTINCT income
 FROM ads_staging2
 ORDER BY 1;
 ```
-**•Some incomes appear as negative values**
-**•Remove the '-' symbol in this instance**
 ```sql
 UPDATE ads_staging2
 SET income = TRIM(LEADING '-' FROM income)
 WHERE income LIKE '-%';
 ```
-**•Some incomes begin with a '$'**
-**•Remove this symbol**
 ```sql
 UPDATE ads_staging2
 SET income = TRIM(LEADING '$' FROM income)
 WHERE income LIKE '$%';
 ```
-**•Some incomes appear with a comma '10,000' rather than '10000'**
-**•Remove the ',' in these instances**
 ```sql
 SELECT income FROM ads_staging2
 WHERE income LIKE '%,%';
@@ -233,13 +207,10 @@ WHERE income LIKE '%,%';
 ```
 
 **Ad Placement: Standardized to proper case (e.g., "Social Media", "Website").**
-**•Check validity of ad placements**
 ```sql
 SELECT DISTINCT ad_placement
 FROM ads_staging2;
 ```
-**•Some results are in all lowercase text**
-**•Modify these results so words begin with capital letters**
 ```sql
 SELECT ad_placement,
 	CASE
@@ -259,14 +230,11 @@ SET ad_placement = CASE
 ```
 
 **Clicks: Converted written numbers to integers.**
-**•Check validity of clicks**
 ```sql
 SELECT DISTINCT clicks
 FROM ads_staging2
 ORDER BY 1;
 ```
-**•Some data is listed as a string rather than an integer**
-**•Modify this so all data is listed as an integer**
 ```sql
 SELECT clicks,
 	CASE
@@ -288,14 +256,11 @@ SET clicks = CASE
 ```
 
 **Click Time: Fixed inconsistent timestamp formats.**
-**•Check validity of click time data
 ```sql
 SELECT DISTINCT click_time
 FROM ads_staging2
 ORDER BY 1;
 ```
-**•One timestamp is listed in a MM-DD-YY format rather than a YYYY-MM-DD format**
-**•Modify this so the format matches the other timestamps**
 ```sql
 SELECT TO_CHAR(
 	TO_TIMESTAMP('04-17-2024 20:45:57', 'MM-DD-YYYY HH24:MI:SS'),
